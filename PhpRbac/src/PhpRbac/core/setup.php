@@ -1,7 +1,10 @@
 <?php
 #TODO: test on sqlite
 
-if ($adapter=="pdo_mysql")
+if ($adapter instanceof PDO) {
+    Jf::$Db=$adapter;
+}
+else if ($adapter=="pdo_mysql")
 {
 	try {
 		Jf::$Db=new PDO("mysql:host={$host};dbname={$dbname}",$user,$pass);

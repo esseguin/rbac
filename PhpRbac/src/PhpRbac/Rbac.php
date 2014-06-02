@@ -16,11 +16,15 @@ class Rbac
     public function __construct($unit_test = '', $db_config_params=null)
     {
         if (! is_null($db_config_params)) {
-            foreach (array('host', 'user', 'pass', 'dbname', 'adapter', 'tablePrefix') as $db_config_param) {
-               if (isset($db_config_params[$db_config_param])) {
-                   $$db_config_param = (string) $db_config_params[$db_config_param];
-               }                 
+            if ($db_config_params['adapter'] instanceof PDO) {
+                $adapter = $db_config_params['adapter'];
+            } else {
+                foreach (array('adapter', 'host', 'user', 'pass', 'dbname') as $db_config_param) {
+                    $$db_config_param = (string) $db_config_params[$db_config_param];
+                }
             }
+
+            $tablePrefix = (string) $db_config_params['tablePrefix'];
         } else if ((string) $unit_test === 'unit_test') {
             require_once dirname(dirname(__DIR__)) . '/tests/database/database.config';
         } else {
