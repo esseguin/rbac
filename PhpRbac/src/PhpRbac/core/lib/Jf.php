@@ -12,7 +12,7 @@ class Jf
 
 	public static $TABLE_PREFIX;
 
-	private static $groupConcatLimitChanged = false;
+	private static $groupConcatLimit = 1000000;
 
 	public static function setTablePrefix($tablePrefix)
 	{
@@ -54,17 +54,14 @@ class Jf
 
 	static function sqlPdo($Query)
 	{
-	    $debug_backtrace = debug_backtrace();
+	    	$debug_backtrace = debug_backtrace();
 
-	    if((isset($debug_backtrace[3])) && ($debug_backtrace[3]['function'] == 'pathId')) {
-    	    if (!self::$groupConcatLimitChanged) {
-    	        $success = self::$Db->query ("SET SESSION group_concat_max_len = 1000000");
 
-    	        if ($success) {
-    	            self::$groupConcatLimitChanged = true;
-    	        }
-    	    }
-	    }
+		if((isset($debug_backtrace[3])) && ($debug_backtrace[3]['function'] == 'pathId')) {
+			if(((int) self::$Db->query ("SELECT @@session.group_concat_max_len")->fetchColumn(0)) < self::$groupConcatLimit) {
+				self::$Db->query ("SET SESSION group_concat_max_len = " . self::$groupConcatLimit);
+			}
+		}
 
 		$args = func_get_args ();
 
@@ -116,19 +113,16 @@ class Jf
 
 	static function sqlMysqli( $Query)
 	{
-	    $debug_backtrace = debug_backtrace();
+		$debug_backtrace = debug_backtrace();
 
-	    if((isset($debug_backtrace[3])) && ($debug_backtrace[3]['function'] == 'pathId')) {
-    	    if (!self::$groupConcatLimitChanged) {
-    	        $success = self::$Db->query ("SET SESSION group_concat_max_len = 1000000");
-
-    	        if ($success) {
-    	            self::$groupConcatLimitChanged = true;
-    	        }
-    	    }
-	    }
+		if((isset($debug_backtrace[3])) && ($debug_backtrace[3]['function'] == 'pathId')) {
+			if(((int) self::$Db->query ("SELECT @@session.group_concat_max_len AS group_concat_max_len")->fetch_field('group_concat_max_len')) < self::$groupConcatLimit) {
+				self::$Db->query ("SET SESSION group_concat_max_len = " . self::$groupConcatLimit);
+			}
+		}
 
 		$args = func_get_args ();
+
 		if (count ( $args ) == 1)
 		{
 			$result = self::$Db->query ( $Query );
@@ -201,7 +195,3 @@ class Jf
 		return time();
 	}
 }
-
-Jf::setTablePrefix($tablePrefix);
-Jf::$Rbac=new RbacManager();
-require_once __DIR__."/../setup.php";
