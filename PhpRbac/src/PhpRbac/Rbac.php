@@ -16,7 +16,7 @@ class Rbac
     public function __construct($unit_test = '', $db_config_params=null)
     {
         if (! is_null($db_config_params)) {
-            if ($db_config_params['adapter'] instanceof PDO) {
+            if ($db_config_params['adapter'] instanceof \PDO) {
                 $adapter = $db_config_params['adapter'];
             } else {
                 foreach (array('adapter', 'host', 'user', 'pass', 'dbname') as $db_config_param) {
