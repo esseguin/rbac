@@ -89,7 +89,12 @@ class Jf
 			foreach ( $args as &$v )
 				$stmt->bindValue ( ++ $i, $v );
 
-			$success=$stmt->execute ();
+			$success = false;
+			try {
+				$success = $stmt->execute ();
+			} catch (\PDOException $ex) {
+			}
+
 
 			$type = substr ( trim ( strtoupper ( $Query ) ), 0, 6 );
 			if ($type == "INSERT")
